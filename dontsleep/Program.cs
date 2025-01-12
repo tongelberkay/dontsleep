@@ -1,45 +1,46 @@
-using NAudio.CoreAudioApi;
+﻿using dontsleep;
+using System.Text;
+using NLog;
 
-class Program
+class Program : AudioCheck
 {
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
-
-    [FlagsAttribute]
-    public enum EXECUTION_STATE : uint
-    {
-        ES_CONTINUOUS = 0x80000000,
-        ES_SYSTEM_REQUIRED = 0x00000001,
-        ES_DISPLAY_REQUIRED = 0x00000002,
-        ES_AWAYMODE_REQUIRED = 0x00000040
-    }
-
-    private static MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-    private static MMDevice defaultDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-
+    private static readonly Logger logger = NLog.LogManager.GetCurrentClassLogger();
     static void Main()
     {
+        //TODO - Kullanıcı arayüzü geliştir.
         Console.WriteLine("Press Enter to exit.");
 
         while (!Console.KeyAvailable || Console.ReadKey(true).Key != ConsoleKey.Enter)
         {
             bool isAudioPlaying = IsAudioPlaying();
-
+            double soundLevel = defaultDevice.AudioMeterInformation.MasterPeakValue;
             if (isAudioPlaying)
             {
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_SYSTEM_REQUIRED | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+                pauseSleep();
+                logger.Info($"Screen sleep has stopped! Sound level is: [{Math.Round(soundLevel, 2)}]\n");
             }
             else
             {
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                resumeSleep();
+                logger.Info($"Screen sleep is now working!  Sound level is: [{Math.Round(soundLevel,2)}]\n");
+
             }
 
             Thread.Sleep(1000);
         }
-    }
-
-    private static bool IsAudioPlaying()
-    {
-        return defaultDevice.AudioMeterInformation.MasterPeakValue > 0.1; // Adjust threshold as needed
+        try
+        {
+            logger.Warn($"program closing! \n");
+            LogManager.Shutdown();
+        }
+        catch (Exception e)
+        {
+            logger.Error($"An Error Has Been Occured!:" + e);
+            LogManager.Shutdown();
+        }
+        finally
+        {
+            LogManager.Shutdown();
+        }
     }
 }
