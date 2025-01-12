@@ -1,6 +1,3 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading;
 using NAudio.CoreAudioApi;
 
 class Program
