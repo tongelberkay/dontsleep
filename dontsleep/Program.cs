@@ -1,22 +1,9 @@
-using NAudio.CoreAudioApi;
-
-class Program
+﻿using System.Text;
+using dontsleep;
+class Program: AudioCheck
 {
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
-
-    [FlagsAttribute]
-    public enum EXECUTION_STATE : uint
-    {
-        ES_CONTINUOUS = 0x80000000,
-        ES_SYSTEM_REQUIRED = 0x00000001,
-        ES_DISPLAY_REQUIRED = 0x00000002,
-        ES_AWAYMODE_REQUIRED = 0x00000040
-    }
-
-    private static MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-    private static MMDevice defaultDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-
+    string path = Directory.GetCurrentDirectory();
+    private static StringBuilder sb = new StringBuilder();
     static void Main()
     {
         Console.WriteLine("Press Enter to exit.");
@@ -27,19 +14,33 @@ class Program
 
             if (isAudioPlaying)
             {
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_SYSTEM_REQUIRED | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+                pauseSleep();
+                sb.Append($"[{DateTime.Now}] screen sleep is stopped! \n");
             }
             else
             {
-                SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+                resumeSleep();
+                sb.Append($"[{DateTime.Now}] screen sleep is now working! \n");
+                
             }
 
             Thread.Sleep(1000);
-        }
-    }
 
-    private static bool IsAudioPlaying()
-    {
-        return defaultDevice.AudioMeterInformation.MasterPeakValue > 0.1; // Adjust threshold as needed
+        }
+        try
+        {
+            sb.Append($"[{DateTime.Now}] program closing now! \n");
+            File.AppendAllText(Directory.GetCurrentDirectory() + "\\log.txt", sb.ToString());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("An Error Has Been Occured!:" + e);
+            sb.Append($"{DateTime.Now} +An Error Has Been Occured!:" + e);
+            File.AppendAllText(Directory.GetCurrentDirectory() + "\\log.txt", sb.ToString());
+        }
+        finally
+        {
+            sb.Clear();
+        }     
     }
 }
