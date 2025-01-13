@@ -1,5 +1,4 @@
 ﻿using dontsleep;
-using System.Text;
 using NLog;
 
 class Program : AudioCheck
@@ -28,11 +27,6 @@ class Program : AudioCheck
 
             Thread.Sleep(1000);
 
-        }
-        try
-        {
-            sb.Append($"[{DateTime.Now}] program closing now! \n");
-            File.AppendAllText(Directory.GetCurrentDirectory() + "\\log.txt", sb.ToString());
         }
         try
         {
