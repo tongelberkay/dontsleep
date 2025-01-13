@@ -16,12 +16,12 @@ class Program : AudioCheck
             if (isAudioPlaying)
             {
                 pauseSleep();
-                logger.Info($"Screen sleep has stopped! Sound level is: [{Math.Round(soundLevel, 2)}]\n");
+                logger.Trace($"Screen sleep has stopped! Sound level is: [{Math.Round(soundLevel, 2)}]\n");
             }
             else
             {
                 resumeSleep();
-                logger.Info($"Screen sleep is now working!  Sound level is: [{Math.Round(soundLevel,2)}]\n");
+                logger.Trace($"Screen sleep is now working!  Sound level is: [{Math.Round(soundLevel,2)}]\n");
 
             }
 
